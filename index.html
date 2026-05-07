@@ -44,11 +44,11 @@
         .game-card {
             min-width: 100px; background: var(--surface);
             border: 1px solid var(--border); border-radius: 18px;
-            padding: 12px; text-align: center; transition: 0.3s;
+            padding: 15px; text-align: center; transition: 0.3s; cursor: pointer;
         }
         .game-card.active { background: var(--primary); color: #000; font-weight: bold; }
         .game-card i { font-size: 1.4rem; margin-bottom: 5px; display: block; }
-        .game-card span { font-size: 0.7rem; }
+        .game-card span { font-size: 0.7rem; display: block; }
 
         /* Section */
         .section {
@@ -70,7 +70,7 @@
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .item {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 16px; border-radius: 16px; transition: 0.2s;
+            padding: 16px; border-radius: 16px; transition: 0.2s; cursor: pointer;
         }
         .item.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: 800; }
         .item b { display: block; font-size: 0.9rem; }
@@ -92,7 +92,7 @@
             background: var(--primary); color: #000;
             border: none; padding: 14px 28px;
             border-radius: 12px; font-weight: 900;
-            font-size: 0.9rem; transition: 0.3s;
+            font-size: 0.9rem; transition: 0.3s; cursor: pointer;
         }
         .btn-buy:active { transform: scale(0.95); }
         .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
@@ -102,7 +102,7 @@
 
     <div class="app-bar">
         <div class="logo">REYYCARRIERLUCK</div>
-        <i class="fab fa-discord" style="color: #5865F2;"></i>
+        <i class="fab fa-discord" style="color: #5865F2; font-size: 1.5rem;"></i>
     </div>
 
     <div class="game-nav">
@@ -132,10 +132,10 @@
 
     <div class="section">
         <h3>3. Pembayaran</h3>
-        <select style="width:100%; padding:15px; background:#000; color:white; border:1px solid var(--border); border-radius:12px;">
-            <option>QRIS - Otomatis</option>
-            <option>DANA / OVO / GoPay</option>
-            <option>Transfer Bank</option>
+        <select id="payment_method" style="width:100%; padding:15px; background:#000; color:white; border:1px solid var(--border); border-radius:12px; outline: none;">
+            <option value="QRIS - Otomatis">QRIS - Otomatis</option>
+            <option value="DANA / OVO / GoPay">DANA / OVO / GoPay</option>
+            <option value="Transfer Bank">Transfer Bank</option>
         </select>
     </div>
 
@@ -148,8 +148,7 @@
     </div>
 
     <script>
-        // WEBHOOK URL MILIKMU
-        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1501815132282425385/9Bd8dzmnIYMv4rR0pP9C-22EfTyAVGN8u6Bp5ZJC25VRz6gG1KoNVAF1y1GS_GBcp5oP';
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1301815132282425385/9Bd8dzmnIYMv4rR0pP9C-22EfTyAVGN8u6Bp5ZJC25VRz6gG1KoNVAF1y1GS_GBcp5oP';
 
         let currentGame = 'MLBB';
         let currentItem = '';
@@ -170,13 +169,26 @@
             ]
         };
 
+        // Fungsi saat pertama kali web dibuka
+        window.onload = () => {
+            renderNominal();
+        };
+
         function setGame(game, el) {
             currentGame = game;
+            
+            // Ubah tampilan tab aktif
             document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             
-            // Toggle Zone ID field for MLBB only
+            // Sembunyikan Zone ID jika bukan MLBB
             document.getElementById('zone_id').style.display = (game === 'MLBB') ? 'block' : 'none';
+            
+            // Reset pilihan produk saat ganti game
+            currentItem = '';
+            currentPrice = '';
+            document.getElementById('selected-name').innerText = "Pilih Produk";
+            document.getElementById('display-price').innerText = "Rp 0";
             
             renderNominal();
         }
@@ -184,6 +196,7 @@
         function renderNominal() {
             const container = document.getElementById('nominal-list');
             container.innerHTML = '';
+            
             catalog[currentGame].forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
@@ -198,45 +211,60 @@
                 };
                 container.appendChild(div);
             });
-            // Reset selection
-            currentItem = '';
-            document.getElementById('selected-name').innerText = "Pilih Produk";
-            document.getElementById('display-price').innerText = "Rp 0";
         }
 
         async function kirimOrder() {
             const uid = document.getElementById('user_id').value;
             const zid = document.getElementById('zone_id').value || '-';
             const wa = document.getElementById('wa_number').value;
+            const pay = document.getElementById('payment_method').value;
             const btn = document.getElementById('btnBuy');
 
             if(!uid || !currentItem || !wa) {
-                alert("Lengkapi data ID, Nominal, dan WhatsApp!");
+                alert("Lengkapi data ID Akun, Pilih Produk, dan Nomor WhatsApp!");
                 return;
             }
 
             btn.disabled = true;
-            btn.innerText = "PROSES...";
+            btn.innerText = "MEMPROSES...";
 
-            const payload = {
-                username: "RCL NOTIFIKASI",
+            const message = {
+                username: "RCL STORE BOT",
                 embeds: [{
-                    title: "🛒 PESANAN BARU MASUK!",
-                    color: 65283, // Neon Green
+                    title: "🛒 PESANAN BARU",
+                    color: 65283, // Warna Hijau
                     fields: [
-                        { name: "Game", value: "
-http://googleusercontent.com/immersive_entry_chip/0
-http://googleusercontent.com/immersive_entry_chip/1
-http://googleusercontent.com/immersive_entry_chip/2
-http://googleusercontent.com/immersive_entry_chip/3
-http://googleusercontent.com/immersive_entry_chip/4
+                        { name: "Game", value: currentGame, inline: true },
+                        { name: "Produk", value: currentItem, inline: true },
+                        { name: "Harga", value: currentPrice, inline: true },
+                        { name: "User ID", value: uid, inline: true },
+                        { name: "Zone ID", value: zid, inline: true },
+                        { name: "WhatsApp", value: wa, inline: true },
+                        { name: "Metode Bayar", value: pay, inline: false }
+                    ],
+                    footer: { text: "Reyycarrierluck Store - " + new Date().toLocaleString() }
+                }]
+            };
 
-### Kelebihan Versi Ini:
-1.  **Sudah Terpasang Webhook**: Link webhook milikmu sudah aktif di dalam script.
-2.  **Format Rapi di Discord**: Pesanan akan tercetak di Discord menggunakan blok kode (`` ``` ``) agar ID dan nomor WA mudah dibaca dan disalin oleh admin.
-3.  **Warna Embed Hijau**: Sesuai dengan tema branding **Reyycarrierluck**.
-4.  **Kondisional Zone ID**: Form "Zone ID" otomatis menghilang jika pengguna memilih Free Fire atau Roblox, dan muncul kembali jika memilih MLBB.
-5.  **Notifikasi Real-Time**: Pesanan terkirim kurang dari 1 detik setelah tombol diklik.
+            try {
+                const response = await fetch(WEBHOOK_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(message)
+                });
 
-Silakan simpan kode ini sebagai `index.html` dan coba lakukan pemesanan. Cek channel Discord admin kamu untuk melihat hasilnya!
-          
+                if(response.ok) {
+                    alert("Pesanan berhasil dikirim ke Admin! Silakan tunggu konfirmasi.");
+                } else {
+                    alert("Terjadi kesalahan saat mengirim pesanan.");
+                }
+            } catch (err) {
+                alert("Koneksi gagal: " + err);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "BELI SEKARANG";
+            }
+        }
+    </script>
+</body>
+</html>
