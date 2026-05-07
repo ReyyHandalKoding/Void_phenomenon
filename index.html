@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RCL Store - Reyycarrierluck</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #00ffa3;
+            --bg: #050a06;
+            --surface: #0d140f;
+            --border: rgba(0, 255, 163, 0.15);
+            --text-dim: #8e9a91;
+        }
+
+        * { -webkit-tap-highlight-color: transparent; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            margin: 0; background: var(--bg); color: white;
+            padding-bottom: 150px;
+        }
+
+        /* Header */
+        .app-bar {
+            background: rgba(4, 9, 5, 0.9);
+            backdrop-filter: blur(15px);
+            padding: 18px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid var(--border);
+            position: sticky; top: 0; z-index: 1000;
+        }
+
+        .logo { font-weight: 900; color: var(--primary); font-size: 1.4rem; letter-spacing: -1px; }
+
+        /* Game Tabs */
+        .game-nav {
+            display: flex; gap: 12px; padding: 20px;
+            overflow-x: auto; scrollbar-width: none;
+        }
+        .game-nav::-webkit-scrollbar { display: none; }
+
+        .game-card {
+            min-width: 100px; background: var(--surface);
+            border: 1px solid var(--border); border-radius: 18px;
+            padding: 12px; text-align: center; transition: 0.3s;
+        }
+        .game-card.active { background: var(--primary); color: #000; font-weight: bold; }
+        .game-card i { font-size: 1.4rem; margin-bottom: 5px; display: block; }
+        .game-card span { font-size: 0.7rem; }
+
+        /* Section */
+        .section {
+            margin: 0 20px 20px; background: var(--surface);
+            padding: 24px; border-radius: 20px; border: 1px solid var(--border);
+        }
+
+        h3 { margin: 0 0 15px; font-size: 0.9rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
+
+        input {
+            width: 100%; background: rgba(0,0,0,0.4);
+            border: 1.5px solid var(--border); padding: 15px;
+            border-radius: 12px; color: white; font-size: 1rem;
+            margin-bottom: 12px; outline: none;
+        }
+        input:focus { border-color: var(--primary); }
+
+        /* Nominal Grid */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        .item {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--border);
+            padding: 16px; border-radius: 16px; transition: 0.2s;
+        }
+        .item.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: 800; }
+        .item b { display: block; font-size: 0.9rem; }
+        .item span { font-size: 0.75rem; opacity: 0.8; }
+
+        /* Floating Checkout */
+        .checkout-bar {
+            position: fixed; bottom: 0; left: 0; right: 0;
+            background: #0d140f; padding: 20px;
+            border-top: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 2000; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+        }
+
+        .price-info small { color: var(--text-dim); font-size: 0.7rem; display: block; }
+        .price-info div { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
+
+        .btn-buy {
+            background: var(--primary); color: #000;
+            border: none; padding: 14px 28px;
+            border-radius: 12px; font-weight: 900;
+            font-size: 0.9rem; transition: 0.3s;
+        }
+        .btn-buy:active { transform: scale(0.95); }
+        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
+    </style>
+</head>
+<body>
+
+    <div class="app-bar">
+        <div class="logo">REYYCARRIERLUCK</div>
+        <i class="fab fa-discord" style="color: #5865F2;"></i>
+    </div>
+
+    <div class="game-nav">
+        <div class="game-card active" onclick="setGame('MLBB', this)">
+            <i class="fas fa-mobile-screen"></i><span>MLBB</span>
+        </div>
+        <div class="game-card" onclick="setGame('Free Fire', this)">
+            <i class="fas fa-bolt"></i><span>FREE FIRE</span>
+        </div>
+        <div class="game-card" onclick="setGame('Roblox', this)">
+            <i class="fas fa-cube"></i><span>ROBLOX</span>
+        </div>
+    </div>
+
+    <div class="section">
+        <h3>1. Masukkan Data Akun</h3>
+        <input type="text" id="user_id" placeholder="ID Akun (Contoh: 12345678)">
+        <input type="text" id="zone_id" placeholder="Zone ID / Server (Khusus ML)">
+        <input type="text" id="wa_number" placeholder="WhatsApp (628xxx)">
+    </div>
+
+    <div class="section">
+        <h3>2. Pilih Nominal</h3>
+        <div class="grid" id="nominal-list">
+            </div>
+    </div>
+
+    <div class="section">
+        <h3>3. Pembayaran</h3>
+        <select style="width:100%; padding:15px; background:#000; color:white; border:1px solid var(--border); border-radius:12px;">
+            <option>QRIS - Otomatis</option>
+            <option>DANA / OVO / GoPay</option>
+            <option>Transfer Bank</option>
+        </select>
+    </div>
+
+    <div class="checkout-bar">
+        <div class="price-info">
+            <small id="selected-name">Pilih Produk</small>
+            <div id="display-price">Rp 0</div>
+        </div>
+        <button class="btn-buy" id="btnBuy" onclick="kirimOrder()">BELI SEKARANG</button>
+    </div>
+
+    <script>
+        // WEBHOOK URL MILIKMU
+        const WEBHOOK_URL = 'https://discord.com/api/webhooks/1501815132282425385/9Bd8dzmnIYMv4rR0pP9C-22EfTyAVGN8u6Bp5ZJC25VRz6gG1KoNVAF1y1GS_GBcp5oP';
+
+        let currentGame = 'MLBB';
+        let currentItem = '';
+        let currentPrice = '';
+
+        const catalog = {
+            'MLBB': [
+                {n: '5 Diamonds', p: 'Rp 1.600'}, {n: '28 Diamonds', p: 'Rp 8.100'},
+                {n: 'Weekly Diamond Pass', p: 'Rp 29.000'}, {n: '170 Diamonds', p: 'Rp 48.500'}
+            ],
+            'Free Fire': [
+                {n: '5 Diamonds', p: 'Rp 1.000'}, {n: '70 Diamonds', p: 'Rp 9.600'},
+                {n: '140 Diamonds', p: 'Rp 19.000'}, {n: '355 Diamonds', p: 'Rp 45.500'}
+            ],
+            'Roblox': [
+                {n: '100 Robux', p: 'Rp 10.500'}, {n: '400 Robux', p: 'Rp 44.500'},
+                {n: '800 Robux', p: 'Rp 88.000'}, {n: '1700 Robux', p: 'Rp 195.000'}
+            ]
+        };
+
+        function setGame(game, el) {
+            currentGame = game;
+            document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            
+            // Toggle Zone ID field for MLBB only
+            document.getElementById('zone_id').style.display = (game === 'MLBB') ? 'block' : 'none';
+            
+            renderNominal();
+        }
+
+        function renderNominal() {
+            const container = document.getElementById('nominal-list');
+            container.innerHTML = '';
+            catalog[currentGame].forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'item';
+                div.innerHTML = `<b>${item.n}</b><span>${item.p}</span>`;
+                div.onclick = () => {
+                    document.querySelectorAll('.item').forEach(i => i.classList.remove('active'));
+                    div.classList.add('active');
+                    currentItem = item.n;
+                    currentPrice = item.p;
+                    document.getElementById('selected-name').innerText = item.n;
+                    document.getElementById('display-price').innerText = item.p;
+                };
+                container.appendChild(div);
+            });
+            // Reset selection
+            currentItem = '';
+            document.getElementById('selected-name').innerText = "Pilih Produk";
+            document.getElementById('display-price').innerText = "Rp 0";
+        }
+
+        async function kirimOrder() {
+            const uid = document.getElementById('user_id').value;
+            const zid = document.getElementById('zone_id').value || '-';
+            const wa = document.getElementById('wa_number').value;
+            const btn = document.getElementById('btnBuy');
+
+            if(!uid || !currentItem || !wa) {
+                alert("Lengkapi data ID, Nominal, dan WhatsApp!");
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerText = "PROSES...";
+
+            const payload = {
+                username: "RCL NOTIFIKASI",
+                embeds: [{
+                    title: "🛒 PESANAN BARU MASUK!",
+                    color: 65283, // Neon Green
+                    fields: [
+                        { name: "Game", value: "
+http://googleusercontent.com/immersive_entry_chip/0
+http://googleusercontent.com/immersive_entry_chip/1
+http://googleusercontent.com/immersive_entry_chip/2
+http://googleusercontent.com/immersive_entry_chip/3
+http://googleusercontent.com/immersive_entry_chip/4
+
+### Kelebihan Versi Ini:
+1.  **Sudah Terpasang Webhook**: Link webhook milikmu sudah aktif di dalam script.
+2.  **Format Rapi di Discord**: Pesanan akan tercetak di Discord menggunakan blok kode (`` ``` ``) agar ID dan nomor WA mudah dibaca dan disalin oleh admin.
+3.  **Warna Embed Hijau**: Sesuai dengan tema branding **Reyycarrierluck**.
+4.  **Kondisional Zone ID**: Form "Zone ID" otomatis menghilang jika pengguna memilih Free Fire atau Roblox, dan muncul kembali jika memilih MLBB.
+5.  **Notifikasi Real-Time**: Pesanan terkirim kurang dari 1 detik setelah tombol diklik.
+
+Silakan simpan kode ini sebagai `index.html` dan coba lakukan pemesanan. Cek channel Discord admin kamu untuk melihat hasilnya!
+          
