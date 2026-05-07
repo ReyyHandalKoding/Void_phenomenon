@@ -34,7 +34,7 @@
 
         .logo { font-weight: 900; color: var(--primary); font-size: 1.4rem; letter-spacing: -1px; }
 
-        /* Game Tabs */
+        /* Game Tabs with Images */
         .game-nav {
             display: flex; gap: 12px; padding: 20px;
             overflow-x: auto; scrollbar-width: none;
@@ -42,13 +42,17 @@
         .game-nav::-webkit-scrollbar { display: none; }
 
         .game-card {
-            min-width: 100px; background: var(--surface);
+            min-width: 110px; background: var(--surface);
             border: 1px solid var(--border); border-radius: 18px;
             padding: 15px; text-align: center; transition: 0.3s; cursor: pointer;
         }
-        .game-card.active { background: var(--primary); color: #000; font-weight: bold; }
-        .game-card i { font-size: 1.4rem; margin-bottom: 5px; display: block; }
-        .game-card span { font-size: 0.7rem; display: block; }
+        .game-card.active { background: var(--primary); color: #000; font-weight: bold; border-color: var(--primary); }
+        
+        .game-card img {
+            width: 45px; height: 45px; object-fit: contain;
+            margin-bottom: 8px; border-radius: 10px;
+        }
+        .game-card span { font-size: 0.7rem; display: block; text-transform: uppercase; }
 
         /* Section */
         .section {
@@ -58,7 +62,7 @@
 
         h3 { margin: 0 0 15px; font-size: 0.9rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
 
-        input {
+        input, select {
             width: 100%; background: rgba(0,0,0,0.4);
             border: 1.5px solid var(--border); padding: 15px;
             border-radius: 12px; color: white; font-size: 1rem;
@@ -71,10 +75,11 @@
         .item {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border);
             padding: 16px; border-radius: 16px; transition: 0.2s; cursor: pointer;
+            display: flex; flex-direction: column;
         }
-        .item.active { background: var(--primary); color: #000; border-color: var(--primary); font-weight: 800; }
-        .item b { display: block; font-size: 0.9rem; }
-        .item span { font-size: 0.75rem; opacity: 0.8; }
+        .item.active { background: var(--primary); color: #000; border-color: var(--primary); }
+        .item b { font-size: 0.9rem; margin-bottom: 4px; }
+        .item span { font-size: 0.8rem; font-weight: bold; }
 
         /* Floating Checkout */
         .checkout-bar {
@@ -82,20 +87,25 @@
             background: #0d140f; padding: 20px;
             border-top: 1px solid var(--border);
             display: flex; justify-content: space-between; align-items: center;
-            z-index: 2000; box-shadow: 0 -10px 30px rgba(0,0,0,0.5);
+            z-index: 2000;
         }
 
-        .price-info small { color: var(--text-dim); font-size: 0.7rem; display: block; }
         .price-info div { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
 
         .btn-buy {
             background: var(--primary); color: #000;
             border: none; padding: 14px 28px;
-            border-radius: 12px; font-weight: 900;
-            font-size: 0.9rem; transition: 0.3s; cursor: pointer;
+            border-radius: 12px; font-weight: 900; cursor: pointer;
         }
-        .btn-buy:active { transform: scale(0.95); }
-        .btn-buy:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        /* Floating CS Button */
+        .fab-wa {
+            position: fixed; bottom: 100px; right: 20px;
+            background: #25d366; width: 55px; height: 55px;
+            border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            font-size: 30px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            z-index: 2001; text-decoration: none;
+        }
     </style>
 </head>
 <body>
@@ -107,96 +117,101 @@
 
     <div class="game-nav">
         <div class="game-card active" onclick="setGame('MLBB', this)">
-            <i class="fas fa-mobile-screen"></i><span>MLBB</span>
+            <img src="https://files.catbox.moe/3p7zf1.png" alt="ML">
+            <span>MLBB</span>
         </div>
         <div class="game-card" onclick="setGame('Free Fire', this)">
-            <i class="fas fa-bolt"></i><span>FREE FIRE</span>
+            <img src="https://files.catbox.moe/05tlrg.webp" alt="FF">
+            <span>Free Fire</span>
         </div>
         <div class="game-card" onclick="setGame('Roblox', this)">
-            <i class="fas fa-cube"></i><span>ROBLOX</span>
+            <img src="https://files.catbox.moe/ehfz6o.png" alt="Roblox">
+            <span>Roblox</span>
         </div>
     </div>
 
     <div class="section">
         <h3>1. Masukkan Data Akun</h3>
-        <input type="text" id="user_id" placeholder="ID Akun (Contoh: 12345678)">
-        <input type="text" id="zone_id" placeholder="Zone ID / Server (Khusus ML)">
+        <input type="text" id="user_id" placeholder="ID Akun / username">
+        <input type="text" id="zone_id" placeholder="Zone ID (Khusus ML)">
         <input type="text" id="wa_number" placeholder="WhatsApp (628xxx)">
     </div>
 
     <div class="section">
         <h3>2. Pilih Nominal</h3>
-        <div class="grid" id="nominal-list">
-            </div>
+        <div class="grid" id="nominal-list"></div>
     </div>
 
     <div class="section">
         <h3>3. Pembayaran</h3>
-        <select id="payment_method" style="width:100%; padding:15px; background:#000; color:white; border:1px solid var(--border); border-radius:12px; outline: none;">
+        <select id="payment_method">
             <option value="QRIS - Otomatis">QRIS - Otomatis</option>
             <option value="DANA / OVO / GoPay">DANA / OVO / GoPay</option>
             <option value="Transfer Bank">Transfer Bank</option>
         </select>
     </div>
 
+    <a href="https://wa.me/6285185083991" class="fab-wa" target="_blank">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+
     <div class="checkout-bar">
         <div class="price-info">
-            <small id="selected-name">Pilih Produk</small>
+            <small id="selected-name" style="color: var(--text-dim);">Pilih Produk</small>
             <div id="display-price">Rp 0</div>
         </div>
         <button class="btn-buy" id="btnBuy" onclick="kirimOrder()">BELI SEKARANG</button>
     </div>
 
     <script>
+        // MASUKKAN WEBHOOK BARU ANDA DI SINI
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1501815132282425385/9Bd8dzmnIYMv4rR0pP9C-22EfTyAVGN8u6Bp5ZJC25VRz6gG1KoNVAF1y1GS_GBcp5oP';
 
         let currentGame = 'MLBB';
         let currentItem = '';
         let currentPrice = '';
 
+        // KATALOG LENGKAP
         const catalog = {
             'MLBB': [
-                {n: '5 Diamonds', p: 'Rp 1.600'}, {n: '28 Diamonds', p: 'Rp 8.100'},
-                {n: 'Weekly Diamond Pass', p: 'Rp 29.000'}, {n: '170 Diamonds', p: 'Rp 48.500'}
+                {n: '5 Diamonds', p: 'Rp 1.600'}, {n: '12 Diamonds', p: 'Rp 3.500'},
+                {n: '28 Diamonds', p: 'Rp 8.100'}, {n: '59 Diamonds', p: 'Rp 16.200'},
+                {n: '85 Diamonds', p: 'Rp 23.500'}, {n: '170 Diamonds', p: 'Rp 48.000'},
+                {n: '296 Diamonds', p: 'Rp 82.000'}, {n: 'Weekly Diamond Pass', p: 'Rp 29.500'},
+                {n: 'Twilight Pass', p: 'Rp 150.000'}, {n: '568 Diamonds', p: 'Rp 155.000'}
             ],
             'Free Fire': [
-                {n: '5 Diamonds', p: 'Rp 1.000'}, {n: '70 Diamonds', p: 'Rp 9.600'},
-                {n: '140 Diamonds', p: 'Rp 19.000'}, {n: '355 Diamonds', p: 'Rp 45.500'}
+                {n: '5 Diamonds', p: 'Rp 1.000'}, {n: '12 Diamonds', p: 'Rp 2.000'},
+                {n: '50 Diamonds', p: 'Rp 7.000'}, {n: '70 Diamonds', p: 'Rp 9.500'},
+                {n: '140 Diamonds', p: 'Rp 19.000'}, {n: '355 Diamonds', p: 'Rp 46.000'},
+                {n: '720 Diamonds', p: 'Rp 91.000'}, {n: 'Member Mingguan', p: 'Rp 29.000'},
+                {n: 'Member Bulanan', p: 'Rp 145.000'}
             ],
             'Roblox': [
-                {n: '100 Robux', p: 'Rp 10.500'}, {n: '400 Robux', p: 'Rp 44.500'},
-                {n: '800 Robux', p: 'Rp 88.000'}, {n: '1700 Robux', p: 'Rp 195.000'}
+                {n: '80 Robux', p: 'Rp 13.000'}, {n: '160 Robux', p: 'Rp 25.000'},
+                {n: '400 Robux', p: 'Rp 65.000'}, {n: '800 Robux', p: 'Rp 125.000'},
+                {n: '1700 Robux', p: 'Rp 265.000'}, {n: '4500 Robux', p: 'Rp 680.000'}
             ]
         };
 
-        // Fungsi saat pertama kali web dibuka
-        window.onload = () => {
-            renderNominal();
-        };
+        window.onload = () => renderNominal();
 
         function setGame(game, el) {
             currentGame = game;
-            
-            // Ubah tampilan tab aktif
             document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
-            
-            // Sembunyikan Zone ID jika bukan MLBB
             document.getElementById('zone_id').style.display = (game === 'MLBB') ? 'block' : 'none';
             
-            // Reset pilihan produk saat ganti game
+            // Reset Selections
             currentItem = '';
-            currentPrice = '';
             document.getElementById('selected-name').innerText = "Pilih Produk";
             document.getElementById('display-price').innerText = "Rp 0";
-            
             renderNominal();
         }
 
         function renderNominal() {
             const container = document.getElementById('nominal-list');
             container.innerHTML = '';
-            
             catalog[currentGame].forEach(item => {
                 const div = document.createElement('div');
                 div.className = 'item';
@@ -221,46 +236,39 @@
             const btn = document.getElementById('btnBuy');
 
             if(!uid || !currentItem || !wa) {
-                alert("Lengkapi data ID Akun, Pilih Produk, dan Nomor WhatsApp!");
+                alert("Lengkapi Data Akun dan Pilihan Produk!");
                 return;
             }
 
             btn.disabled = true;
             btn.innerText = "MEMPROSES...";
 
-            const message = {
-                username: "RCL STORE BOT",
+            const msg = {
+                username: "RCL NOTIFICATION",
                 embeds: [{
-                    title: "🛒 PESANAN BARU",
-                    color: 65283, // Warna Hijau
+                    title: " [RCL INFO] New Order!! 🍀",
+                    color: 65283,
                     fields: [
                         { name: "Game", value: currentGame, inline: true },
                         { name: "Produk", value: currentItem, inline: true },
                         { name: "Harga", value: currentPrice, inline: true },
-                        { name: "User ID", value: uid, inline: true },
-                        { name: "Zone ID", value: zid, inline: true },
-                        { name: "WhatsApp", value: wa, inline: true },
-                        { name: "Metode Bayar", value: pay, inline: false }
-                    ],
-                    footer: { text: "Reyycarrierluck Store - " + new Date().toLocaleString() }
+                        { name: "ID / Server", value: `ID: ${uid} | Zone: ${zid}`, inline: false },
+                        { name: "WhatsApp Pembeli", value: `[Hubungi WA](https://wa.me/${wa})`, inline: true },
+                        { name: "Metode", value: pay, inline: true }
+                    ]
                 }]
             };
 
             try {
-                const response = await fetch(WEBHOOK_URL, {
+                const res = await fetch(WEBHOOK_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(message)
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(msg)
                 });
-
-                if(response.ok) {
-                    alert("Pesanan berhasil dikirim ke Admin! Silakan tunggu konfirmasi.");
-                } else {
-                    alert("Terjadi kesalahan saat mengirim pesanan.");
-                }
-            } catch (err) {
-                alert("Koneksi gagal: " + err);
-            } finally {
+                if(res.ok) alert("Pesanan Terkirim! Admin akan segera menghubungi WhatsApp Anda.");
+                else alert("Gagal mengirim! Pastikan Webhook URL benar.");
+            } catch (e) { alert("Error: " + e); }
+            finally {
                 btn.disabled = false;
                 btn.innerText = "BELI SEKARANG";
             }
