@@ -32,56 +32,80 @@
             position: sticky; top: 0; z-index: 1000;
         }
 
+        .header-left { display: flex; align-items: center; gap: 12px; }
         .logo { font-weight: 900; color: var(--primary); font-size: 1.4rem; letter-spacing: -1px; }
+        
+        .btn-cs-header {
+            background: rgba(0, 255, 163, 0.1);
+            border: 1px solid var(--border);
+            color: var(--primary);
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+        }
 
-        /* Game Tabs with Images */
+        /* Modal CS */
+        .modal-overlay {
+            position: fixed; top:0; left:0; right:0; bottom:0;
+            background: rgba(0,0,0,0.8); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center;
+            z-index: 3000; padding: 20px;
+        }
+        .modal-content {
+            background: var(--surface); border: 1px solid var(--border);
+            padding: 30px; border-radius: 24px; text-align: center;
+            max-width: 400px; width: 100%;
+        }
+        .modal-content i { font-size: 3rem; color: var(--primary); margin-bottom: 15px; }
+        .modal-content h2 { margin: 0 0 10px; font-size: 1.2rem; }
+        .modal-content p { color: var(--text-dim); margin-bottom: 25px; line-height: 1.5; }
+        
+        .btn-wa-cs {
+            background: #25d366; color: white; text-decoration: none;
+            display: block; padding: 15px; border-radius: 12px;
+            font-weight: bold; margin-bottom: 10px;
+        }
+        .btn-close-modal {
+            color: var(--text-dim); font-size: 0.9rem; cursor: pointer;
+        }
+
+        /* Game Tabs */
         .game-nav {
             display: flex; gap: 12px; padding: 20px;
             overflow-x: auto; scrollbar-width: none;
         }
         .game-nav::-webkit-scrollbar { display: none; }
-
         .game-card {
             min-width: 110px; background: var(--surface);
             border: 1px solid var(--border); border-radius: 18px;
             padding: 15px; text-align: center; transition: 0.3s; cursor: pointer;
         }
         .game-card.active { background: var(--primary); color: #000; font-weight: bold; border-color: var(--primary); }
-        
-        .game-card img {
-            width: 45px; height: 45px; object-fit: contain;
-            margin-bottom: 8px; border-radius: 10px;
-        }
+        .game-card img { width: 45px; height: 45px; object-fit: contain; margin-bottom: 8px; border-radius: 10px; }
         .game-card span { font-size: 0.7rem; display: block; text-transform: uppercase; }
 
-        /* Section */
+        /* Section & Grid */
         .section {
             margin: 0 20px 20px; background: var(--surface);
             padding: 24px; border-radius: 20px; border: 1px solid var(--border);
         }
-
         h3 { margin: 0 0 15px; font-size: 0.9rem; color: var(--primary); text-transform: uppercase; letter-spacing: 1px; }
-
         input, select {
             width: 100%; background: rgba(0,0,0,0.4);
             border: 1.5px solid var(--border); padding: 15px;
             border-radius: 12px; color: white; font-size: 1rem;
             margin-bottom: 12px; outline: none;
         }
-        input:focus { border-color: var(--primary); }
-
-        /* Nominal Grid */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
         .item {
             background: rgba(255,255,255,0.03); border: 1px solid var(--border);
-            padding: 16px; border-radius: 16px; transition: 0.2s; cursor: pointer;
-            display: flex; flex-direction: column;
+            padding: 16px; border-radius: 16px; cursor: pointer;
         }
         .item.active { background: var(--primary); color: #000; border-color: var(--primary); }
-        .item b { font-size: 0.9rem; margin-bottom: 4px; }
-        .item span { font-size: 0.8rem; font-weight: bold; }
 
-        /* Floating Checkout */
+        /* Checkout Bar */
         .checkout-bar {
             position: fixed; bottom: 0; left: 0; right: 0;
             background: #0d140f; padding: 20px;
@@ -89,30 +113,36 @@
             display: flex; justify-content: space-between; align-items: center;
             z-index: 2000;
         }
-
-        .price-info div { font-size: 1.2rem; font-weight: 900; color: var(--primary); }
-
         .btn-buy {
             background: var(--primary); color: #000;
             border: none; padding: 14px 28px;
             border-radius: 12px; font-weight: 900; cursor: pointer;
-        }
-
-        /* Floating CS Button */
-        .fab-wa {
-            position: fixed; bottom: 100px; right: 20px;
-            background: #25d366; width: 55px; height: 55px;
-            border-radius: 50%; display: flex; align-items: center; justify-content: center;
-            font-size: 30px; color: white; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 2001; text-decoration: none;
         }
     </style>
 </head>
 <body>
 
     <div class="app-bar">
-        <div class="logo">REYYCARRIERLUCK</div>
+        <div class="header-left">
+            <div class="logo">REYYCARRIERLUCK</div>
+            <div class="btn-cs-header" onclick="toggleModal(true)">
+                <i class="fas fa-user-shield"></i>
+                <span>CS</span>
+            </div>
+        </div>
         <i class="fab fa-discord" style="color: #5865F2; font-size: 1.5rem;"></i>
+    </div>
+
+    <div class="modal-overlay" id="modalCS">
+        <div class="modal-content">
+            <i class="fas fa-headset"></i>
+            <h2>Ada Kendala?</h2>
+            <p>Ada Kendala Atau masalah Terhadap RCL Chat kami</p>
+            <a href="https://wa.me/6285185083991" class="btn-wa-cs" target="_blank">
+                <i class="fab fa-whatsapp"></i> Hubungi Customer Service
+            </a>
+            <div class="btn-close-modal" onclick="toggleModal(false)">Nanti Saja</div>
+        </div>
     </div>
 
     <div class="game-nav">
@@ -132,7 +162,7 @@
 
     <div class="section">
         <h3>1. Masukkan Data Akun</h3>
-        <input type="text" id="user_id" placeholder="ID Akun / username">
+        <input type="text" id="user_id" placeholder="ID Akun">
         <input type="text" id="zone_id" placeholder="Zone ID (Khusus ML)">
         <input type="text" id="wa_number" placeholder="WhatsApp (628xxx)">
     </div>
@@ -151,10 +181,6 @@
         </select>
     </div>
 
-    <a href="https://wa.me/6285185083991" class="fab-wa" target="_blank">
-        <i class="fab fa-whatsapp"></i>
-    </a>
-
     <div class="checkout-bar">
         <div class="price-info">
             <small id="selected-name" style="color: var(--text-dim);">Pilih Produk</small>
@@ -164,14 +190,12 @@
     </div>
 
     <script>
-        // MASUKKAN WEBHOOK BARU ANDA DI SINI
         const WEBHOOK_URL = 'https://discord.com/api/webhooks/1501815132282425385/9Bd8dzmnIYMv4rR0pP9C-22EfTyAVGN8u6Bp5ZJC25VRz6gG1KoNVAF1y1GS_GBcp5oP';
 
         let currentGame = 'MLBB';
         let currentItem = '';
         let currentPrice = '';
 
-        // KATALOG LENGKAP
         const catalog = {
             'MLBB': [
                 {n: '5 Diamonds', p: 'Rp 1.600'}, {n: '12 Diamonds', p: 'Rp 3.500'},
@@ -188,11 +212,15 @@
                 {n: 'Member Bulanan', p: 'Rp 145.000'}
             ],
             'Roblox': [
-                {n: '80 Robux', p: 'Rp 13.000'}, {n: '160 Robux', p: 'Rp 25.000'},
-                {n: '400 Robux', p: 'Rp 65.000'}, {n: '800 Robux', p: 'Rp 125.000'},
+                {n: '100 Robux', p: 'Rp 12.500'}, {n: '160 Robux', p: 'Rp 25.000'},
+                {n: '400 Robux', p: 'Rp 52.000'}, {n: '800 Robux', p: 'Rp 125.000'},
                 {n: '1700 Robux', p: 'Rp 265.000'}, {n: '4500 Robux', p: 'Rp 680.000'}
             ]
         };
+
+        function toggleModal(show) {
+            document.getElementById('modalCS').style.display = show ? 'flex' : 'none';
+        }
 
         window.onload = () => renderNominal();
 
@@ -201,11 +229,6 @@
             document.querySelectorAll('.game-card').forEach(c => c.classList.remove('active'));
             el.classList.add('active');
             document.getElementById('zone_id').style.display = (game === 'MLBB') ? 'block' : 'none';
-            
-            // Reset Selections
-            currentItem = '';
-            document.getElementById('selected-name').innerText = "Pilih Produk";
-            document.getElementById('display-price').innerText = "Rp 0";
             renderNominal();
         }
 
@@ -236,25 +259,22 @@
             const btn = document.getElementById('btnBuy');
 
             if(!uid || !currentItem || !wa) {
-                alert("Lengkapi Data Akun dan Pilihan Produk!");
-                return;
+                alert("Lengkapi Data!"); return;
             }
 
             btn.disabled = true;
             btn.innerText = "MEMPROSES...";
 
             const msg = {
-                username: "RCL NOTIFICATION",
+                username: "RCL NOTIFIKASI",
                 embeds: [{
-                    title: " [RCL INFO] New Order!! 🍀",
+                    title: "🚀 PESANAN BARU",
                     color: 65283,
                     fields: [
                         { name: "Game", value: currentGame, inline: true },
                         { name: "Produk", value: currentItem, inline: true },
-                        { name: "Harga", value: currentPrice, inline: true },
-                        { name: "ID / Server", value: `ID: ${uid} | Zone: ${zid}`, inline: false },
-                        { name: "WhatsApp Pembeli", value: `[Hubungi WA](https://wa.me/${wa})`, inline: true },
-                        { name: "Metode", value: pay, inline: true }
+                        { name: "ID / Server", value: `${uid} (${zid})` },
+                        { name: "WA Pembeli", value: wa }
                     ]
                 }]
             };
@@ -265,13 +285,10 @@
                     headers: {'Content-Type': 'application/json'},
                     body: JSON.stringify(msg)
                 });
-                if(res.ok) alert("Pesanan Terkirim! Admin akan segera menghubungi WhatsApp Anda.");
-                else alert("Gagal mengirim! Pastikan Webhook URL benar.");
-            } catch (e) { alert("Error: " + e); }
-            finally {
-                btn.disabled = false;
-                btn.innerText = "BELI SEKARANG";
-            }
+                if(res.ok) alert("Terkirim!");
+                else alert("Gagal! Cek Webhook.");
+            } catch (e) { alert("Error"); }
+            finally { btn.disabled = false; btn.innerText = "BELI SEKARANG"; }
         }
     </script>
 </body>
